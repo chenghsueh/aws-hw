@@ -1,0 +1,36 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+
+	<title>Query </title>
+</head>
+<body>
+
+	<table class="table">
+		<thead>
+			<tr>
+				<th class="username" scope="col">username</td>
+				<th class="password" scope="col">password</td>
+				<th class="telephone" scope="col">telephone</td>
+				<th class="email" scope="col">email</td>
+				<th class="address" scope="col">address</td>
+			</tr>
+		</thead>
+		<tbody>
+				{% for entry in table%}
+			<tr>
+				<th class="username" scope="row">{{entry.name}}</td>
+				<td class="password" >{{entry.password}}</td>
+				<td class="telephone" >{{entry.telephone}}</td>
+				<td class="email" >{{entry.email}}</td>
+				<td class="address" >{{entry.address}}</td>
+			</tr>
+				{% endfor %}
+		</tbody>
+	</table>
+</body>
+</html>

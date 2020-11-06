@@ -1,6 +1,6 @@
 #main.py
 
-from flask import Flask, render_template
+from flask import Flask, render_template, session, redirect, url_for
 from flask_bootstrap import Bootstrap
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
@@ -11,14 +11,14 @@ db = SQLAlchemy()
 app = Flask(__name__)
 
 app.config['SQLALCHEMY_TRACK_MODIFATIONS'] = False
-app.config['SQLALCHEMY_DATABASE_URO'] = "mysql+pymysql://admin:admin123456@hw-db.cnst1jrtc4pc.us-east-1.rds.amazonaws.com:3306/sample"
+app.config['SQLALCHEMY_DATABASE_URI'] = "mysql+pymysql://admin:admin123456@hw-db.cnst1jrtc4pc.us-east-1.rds.amazonaws.com:3306/sample"
 app.config['SECRET_KEY'] = "hard to guess string"
 bootstrap = Bootstrap(app)
 
 db.init_app(app)
 
-class Product(db.Model):
-    __tablname__ = 'account'
+class Account(db.Model):
+    __tablename__ = 'account'
     memid = db.Column(db.Integer, primary_key = True)
     name = db.Column(db.String(30), unique = True, nullable=False)
     password = db.Column(db.String(30), nullable = False)
@@ -28,11 +28,12 @@ class Product(db.Model):
     insert_time = db.Column(db.DateTime, default=datetime.now)
     update_time = db.Column(db.DateTime, onupdate=datetime.now, default=datetime.now)
 
-    def __init__(self, name, password, telephone, email):
+    def __init__(self, name, password, telephone, email, address):
         self.name = name
         self.password = password
         self.telephone = telephone
-        self.email = user@mail.com
+        self.email = email
+        self.address = address
 
 @app.route('/')
 def index():
@@ -41,10 +42,41 @@ def index():
 @app.route('/user', methods=['GET', 'POST'])
 def user():
     form = UserForm()
+    formData = {
+            'username' : None,
+            'password' : None, 
+            'telephone' : None, 
+            'email' : None,
+            'address' : None
+    }
     if form.validate_on_submit():
-        return 'Sucess Submit'
-    return render_template('user.html', form=form)
+        formData = {
+                'username':form.username.data, 
+                'password':form.password.data,
+                'telephone':form.telephone.data, 
+                'email':form.email.data, 
+                'address':form.address.data
+        }
+        session["formData"] = formData
+        return redirect(url_for("register"))
+    elif form.errors and 'formData' in session:
+        del session['formData']
+    return render_template('user.html', form=form, formData = session.get("formData"))
 
+@app.route('/register')
+def register():
+    tmp = session.get('formData')
+    account_tmp = Account(tmp['username'], tmp['password'], tmp['telephone'], tmp['email'], tmp['address'])
+    db.session.add(account_tmp)
+    db.session.commit()
+    return redirect(url_for("query"))
+
+@app.route('/query')
+def query():
+    query = Account.query.all()
+    #for i in query:
+        #print(i.name)
+    return render_template('data.html', table=query)
 
 @app.route('/config-db')
 def configdb():
